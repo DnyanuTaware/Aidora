@@ -9,6 +9,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { UserData } from "../context/UserContext"; // correct path
+import UserMenu from "./UserMenu";
 
 const NavigationBar = () => {
   const { isAuth, logoutUser } = UserData();
@@ -64,38 +65,13 @@ const NavigationBar = () => {
             to="/contact"
             className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
           >
-            Contact
+            My Applications
           </Link>
         </div>
 
         {/* Auth Buttons */}
-        <div className="flex gap-3">
-          {isAuth ? (
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 px-4 py-2 rounded-lg text-white font-medium 
-             bg-gradient-to-r from-red-400 via-red-500 to-red-600
-             hover:from-red-600 hover:via-red-700 hover:to-red-800
-             transition-all duration-300"
-            >
-              <LogOut className="w-4 h-4" /> Logout
-            </button>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="flex items-center gap-1 border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-all"
-              >
-                <LogIn className="w-4 h-4" /> Login
-              </Link>
-              <Link
-                to="/register"
-                className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all"
-              >
-                <UserPlus className="w-4 h-4" /> Sign Up
-              </Link>
-            </>
-          )}
+        <div className="flex items-center gap-3 cursor-pointer">
+          <UserMenu />
         </div>
       </div>
 
@@ -106,10 +82,10 @@ const NavigationBar = () => {
           Home
         </Link>
         <Link to="/scholarships" className="flex flex-col items-center">
-          🎓 Scholarships
+          Scholarships
         </Link>
         <Link to="/automation" className="flex flex-col items-center">
-          ⚙️ Automation
+          Automation
         </Link>
         <Link to="/about" className="flex flex-col items-center">
           <Info className="w-5 h-5 text-blue-600" />

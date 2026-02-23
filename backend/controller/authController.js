@@ -7,36 +7,65 @@ import cloudinary from "cloudinary";
 
 export const registerUser = TryCatch(async (req, res) => {
   console.log("req.body", req.body);
-  const { name, email, password, gender } = req.body;
+  const { name, email, password, phone, stateDistrict, language, role } =
+    req.body;
   const file = req.file;
 
-  if (!name || !email || !password || !gender) {
+  // ✅ Validate all required fields
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !phone ||
+    !stateDistrict ||
+    !language ||
+    !role
+  ) {
     return res.status(400).json({
-      message: "plz give all values",
+      message: "Please provide all required fields",
     });
   }
+
+  // ✅ Check if user already exists
   let user = await User.findOne({ email });
+  if (user) {
+    return res.status(400).json({ message: "User already exists" });
+  }
 
-  if (user) return res.status(400).json({ message: "User already exists" });
-
-  const fileURL = getDataURL(file);
-
+  // ✅ Hash password
   const hashedPWD = await bcrypt.hash(password, 10);
 
-  const myCloud = await cloudinary.v2.uploader.upload(fileURL.content);
+  // ✅ Upload image to Cloudinary
+  if (!file) {
+    return res.status(400).json({ message: "Profile image is required" });
+  }
+  const fileURL = await getDataURL(file);
+  const myCloud = await cloudinary.v2.uploader.upload(fileURL.content, {
+    folder: "aidora_profiles",
+  });
+
+  // ✅ Create new user
   user = await User.create({
     name,
     email,
     password: hashedPWD,
-    gender,
+    phone,
+    stateDistrict,
+    language,
+    role,
     profilePic: {
       id: myCloud.public_id,
       url: myCloud.secure_url,
     },
   });
+
+  // ✅ Generate JWT Token
   generateToken(user._id, res);
+
+  // ✅ Send response
   res.status(201).json({
-    message: "user Registerd ",
+    success: true,
+    message: "User Registered Successfully",
     user,
   });
 });

@@ -14,13 +14,16 @@ export const UserContextProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data } = await axios.post("/api/auth/register", formData);
-      console.log("data:", data);
 
       toast.success(data.message);
       setUser(data);
       setIsAuth(true);
       setLoading(false);
-      navigate("/");
+      if (data.user.role === "organization") {
+        navigate("/org/dashboard");
+      } else {
+        navigate("/complete-profile");
+      }
       fetchUser();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -35,11 +38,17 @@ export const UserContextProvider = ({ children }) => {
         password,
       });
 
-      toast.success(data.message);
       setUser(data);
       setIsAuth(true);
       setLoading(false);
-      navigate("/");
+      if (data.user.role === "organization") {
+        navigate("/org/dashboard");
+      } else {
+        navigate("/");
+      }
+
+      toast.success(data.message);
+
       fetchUser();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -107,7 +116,7 @@ export const UserContextProvider = ({ children }) => {
     id,
     oldPassword,
     newPassword,
-    setShowUpdatePass
+    setShowUpdatePass,
   ) {
     try {
       const { data } = await axios.post("/api/user/" + id, {
@@ -120,6 +129,55 @@ export const UserContextProvider = ({ children }) => {
       toast.error(error.response.data.message);
     }
   }
+  // Inside UserContextProvider (with other functions)
+  async function createOrUpdateStudentProfile(profileData) {
+    if (!isAuth) {
+      toast.error("Please login first.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        "/api/user/studentProfile/createOrUpdate",
+        {
+          userId: user?.data?._id,
+          ...profileData,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      toast.success(data.message || "Profile saved successfully!");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to save student profile",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+  // ✅ Fetch logged-in student's profile from backend
+  // inside UserContextProvider
+  const [profile, setProfile] = useState(null);
+
+  // ✅ Define function once
+  const fetchStudentProfile = async (userId) => {
+    if (!userId) return;
+    try {
+      const { data } = await axios.get(`/api/user/studentProfile/${userId}`);
+      setProfile(data.profile);
+      console.log("Profile fetched successfully!");
+    } catch (error) {
+      toast.error("Failed to fetch student profile");
+      console.error(error);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -135,6 +193,9 @@ export const UserContextProvider = ({ children }) => {
         updateProfilePic,
         updateProfileName,
         updatePassword,
+        createOrUpdateStudentProfile,
+        fetchStudentProfile,
+        profile,
       }}
     >
       {children}

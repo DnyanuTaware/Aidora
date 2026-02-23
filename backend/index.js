@@ -24,8 +24,11 @@ app.use(cookieParser());
 //using routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import scholarshipRoutes from "./routes/scholarshipRoutes.js";
+
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/scholarships", scholarshipRoutes);
 
 const PORT = process.env.PORT;
 
