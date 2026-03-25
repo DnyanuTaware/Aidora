@@ -25,11 +25,12 @@ app.use(cookieParser());
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import scholarshipRoutes from "./routes/scholarshipRoutes.js";
+import digiRoutes from "./routes/digiRoutes.js";
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/scholarships", scholarshipRoutes);
-
+app.use("/api/mockdigilocker", digiRoutes);
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
